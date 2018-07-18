@@ -1,4 +1,4 @@
-# mrbw-cst
+# mrbw-cst_dl
 Wireless Control Stand Throttle (ProtoThrottle)
 
 This is an attempt to use the ISE PT for a different application. It is not intended to commercial but a 
