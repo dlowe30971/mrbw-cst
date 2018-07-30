@@ -19,6 +19,11 @@ LICENSE:
     GNU General Public License for more details.
 *************************************************************************/
 
+/************************************************************************
+Editored by DLowe to experiment Dated: 20180730
+Added details for understanding
+*************************************************************************/
+
 #include <stdlib.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -40,23 +45,23 @@ void initPorts()
 
 	// Initialize ports 
 	// Pin Assignments for PORTA/DDRA
-	//  PA0 - Analog - VREV
-	//  PA1 - Analog - VBRAKE
-	//  PA2 - Analog - VLIGHT_R
-	//  PA3 - Analog - VLIGHT_F
-	//  PA4 - Analog - VHORN
-	//  PA5 - Output - LCD Backlight Enable
+	//  PA0 - Analog - VREV		reads the pot value from the reverser handel
+	//  PA1 - Analog - VBRAKE	reads the pot value from the brake handel
+	//  PA2 - Analog - VLIGHT_R	reads the voltage level (Resistor ladder) from the multipole sw
+	//  PA3 - Analog - VLIGHT_F	reads the voltage level (Resistor ladder) from the multipole sw
+	//  PA4 - Analog - VHORN	reads the pot value from the horn handel
+	//  PA5 - Output - LCD Backlight Enable		controls LCD backlighting
 	//  PA6 - Output - LCD Power Enable (inverted)
-	//  PA7 - Analog - VBATTERY
-	DDRA  = 0b01100000;
-	PORTA = 0b00000000;
+	//  PA7 - Analog - VBATTERY	reads the vaoltage value from the batteries
+	DDRA  = 0b01100000;	//Control IP or OP configuration of PartA 0 for IP and 1 for OP. Most significate bit frist
+	PORTA = 0b00000000;	//Set the pin voltage level 0 for LOW (0V) and 1 for HIGH (5V)
 
 	// Pin Assignments for PORTB/DDRB
-	//  PB0 - Output - XBee SLEEP_EN
-	//  PB1 - Input  - Bell
-	//  PB2 - Input  - Dynamic Brake
+	//  PB0 - Output - XBee SLEEP_EN	Controls XBee wireless module
+	//  PB1 - Input  - Bell			reads digital input from bell pushbutton
+	//  PB2 - Input  - Dynamic Brake	
 	//  PB3 - Output - N/C
-	//  PB4 - Input  - Softkey 0
+	//  PB4 - Input  - Softkey 0		reads digital input from SK0 pushbutton
 	//  PB5 - Input  - Softkey 1
 	//  PB6 - Input  - Softkey 2
 	//  PB7 - Input  - Softkey 3
@@ -77,14 +82,14 @@ void initPorts()
 	PORTC = 0b00000000;
 
 	// Pin Assignments for PORTC/DDRC
-	//  PD0 - Input  - XBEE RX
-	//  PD1 - Output - XBEE TX
-	//  PD2 - Input  - Throttle A Ph
-	//  PD3 - Input  - Throttle B Ph
+	//  PD0 - Input  - XBEE RX			comms from XBee
+	//  PD1 - Output - XBEE TX			comms to XBee
+	//  PD2 - Input  - Throttle A Ph		reads digital input from notch handel
+	//  PD3 - Input  - Throttle B Ph		reads digital input from notch handel
 	//  PD4 - Output - Throttle Enable
 	//  PD5 - Output - Light Switches Enable
-	//  PD6 - Output - LED Red
-	//  PD7 - Output - LED Green
+	//  PD6 - Output - LED Red			controls Red LED
+	//  PD7 - Output - LED Green			Controls Green LED
 	DDRD  = 0b11110000;
 	PORTD = 0b00000000;
 }
@@ -200,7 +205,7 @@ void enableThrottle(void)
 	EICRA |= _BV(ISC10) | _BV(ISC00);  // Enable any edge on INT0 and INT1
 	PORTD |= _BV(THROTTLE_ENABLE);  // Turn on the pull-ups
 	_delay_ms(1);  // Measured 20us rise time
-	throttleQuadrature = (PIND & (_BV(PD2) | _BV(PD3)))>>2;  // Get an initial read
+	throttleQuadrature = (PIND & (_BV(PD2) | _BV(PD3)))>>2;  // Get an initial read     //reads the IPs at bits 2 and 3 and shifts them to bits 0 and 1
 	EIMSK = _BV(INT1) | _BV(INT0);  // Enable INT0 and INT1 interrupts
 }
 
@@ -214,17 +219,18 @@ ISR(INT0_vect)
 {
 	uint8_t newQuadrature;
 	
-	newQuadrature = (PIND & (_BV(PD2) | _BV(PD3)))>>2;
-
-	uint8_t quadratureUp[] = {1, 3, 0, 2};
+	newQuadrature = (PIND & (_BV(PD2) | _BV(PD3)))>>2;  	//shifts the digital IP bit values from IP pin 2 and 3 to bits 0 and 1.
+	//example newQuad = 00000011 = 3				//making the values from 0 to 3
+	//example throttleQuad = 00000001 = 1
+	uint8_t quadratureUp[] = {1, 3, 0, 2};			//Sets up arrays to determine throttle movement up or down
 	uint8_t quadratureDown[] = {2, 0, 3, 1};
-
-	if (newQuadrature != throttleQuadrature)
+		//3 is not = 0 execute if statements
+	if (newQuadrature != throttleQuadrature)		//compares new quadrature to old
 	{
-
-		if (newQuadrature == quadratureUp[throttleQuadrature & 0x03])
-		{
-			if (throttlePosition > 0)
+			//3 == quadUp[0] (value 1) which = true execute if statements throttle was moved up
+		if (newQuadrature == quadratureUp[throttleQuadrature & 0x03]) //this throttleQuadrature & 0x03 is effectively removing all other bits other than bits 0 and 1 making throttleQuadrature a number from 0 - 3
+		{ //by comparing the value of newQuadrature (0 to 3) to the next value of quadratureUp or down denoted by old value of throttleQuadrature which is used as an index to reference the array of values
+			if (throttlePosition > 0)	//decreases the throttle position but not below 0
 				throttlePosition--;
 		}
 		else if (newQuadrature == quadratureDown[throttleQuadrature & 0x03])
