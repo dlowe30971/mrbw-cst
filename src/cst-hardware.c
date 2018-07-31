@@ -291,9 +291,10 @@ void initADC()
 	// Setup ADC
 	ADMUX  = _BV(REFS0); // AVCC reference, ADC7 channel
 	ADCSRA = _BV(ADATE) | _BV(ADIF) | _BV(ADPS2) | _BV(ADPS1); // 128 prescaler
-	ADCSRB = 0x00;
+	//The above sets the ADC to free running mode (ADATE), reset the intrrupt flag (ADIF) and CPU clock divide factor (64)
+	ADCSRB = 0x00;   //Dose nothing 
 	ADCSRA |= _BV(ADSC) | _BV(ADIE) | _BV(ADIF);
-	
+		//Start ADC conversion (ADSC), enable interrupt (ADIE) and reset complete flag (ADIF) 
 	adcLoopCount = 0;
 }
 
@@ -312,7 +313,7 @@ ISR(ADC_vect)
 	}
 }
 
-void startADC(uint8_t mux)
+void startADC(uint8_t mux)  //mux selects the ADC channel to read.
 {
 	ADMUX  = _BV(REFS0) | mux;
 	adcAccumulator = 0;
@@ -324,7 +325,7 @@ void processADC()
 {
 	static ADCState adcState = 0;
 	
-	if(!(ADCSRA & _BV(ADEN)))
+	if(!(ADCSRA & _BV(ADEN)))   //This line is check that the ADC is not turned on or running by looking at bit 7 of the ADCSRA register to 1.Running means that the ADC is not in the middle of a ADC read write operation.
 	{
 		// Only process ADC if ADC not running
 /*		int16_t delta = 0;*/
