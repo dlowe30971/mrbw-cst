@@ -41,3 +41,21 @@ Here are some of the basic rules,
  -  Coal is added from the tender to the firebox, 
  -  Etc. 
 *************************************************************************/
+
+//Add includes as needed
+
+//Create/get consumuables characteristics
+//these numbers will be based on NSWGR D58 class loco
+unit16_t waterTender = 41000;           //represents liters
+unit16_t coalTender = 14000;            //represents kg
+
+
+//Get/update control inputs and status's
+
+//calculate new values
+
+//handle action for resources depleted eg no water/coal no steam, no steam loco stops 
+
+//display values
+
+//Replenish resources
