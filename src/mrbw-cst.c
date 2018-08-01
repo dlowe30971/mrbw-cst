@@ -19,6 +19,11 @@ LICENSE:
     GNU General Public License for more details.
 *************************************************************************/
 
+/************************************************************************
+Editored by DLowe to experiment Dated: 20180801
+Added details for understanding. No programatic changes made
+*************************************************************************/
+
 #include <stdlib.h>
 #include <string.h>
 #include <avr/io.h>
@@ -210,7 +215,7 @@ uint8_t lastRSSI = 0xFF;
 
 uint16_t locoAddress = 0;
 
-uint8_t hornFunction = 2;
+uint8_t hornFunction = 2;   //DL - This is the funtion # within the decoder for the named function ie F2 here
 uint8_t bellFunction = 7;
 uint8_t frontDim1Function = 3, frontDim2Function = OFF_FUNCTION, frontHeadlightFunction = 0, frontDitchFunction = 3;
 uint8_t rearDim1Function = 6, rearDim2Function = OFF_FUNCTION, rearHeadlightFunction = 5, rearDitchFunction = 6;
