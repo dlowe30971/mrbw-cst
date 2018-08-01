@@ -21,7 +21,7 @@ LICENSE:
 
 /************************************************************************
 Editored by DLowe to experiment Dated: 20180730
-Added details for understanding
+Added details for understanding. No programatic changes made
 *************************************************************************/
 
 #include <stdlib.h>
@@ -323,9 +323,9 @@ void startADC(uint8_t mux)  //mux selects the ADC channel to read.
 
 void processADC()
 {
-	static ADCState adcState = 0;
+	static ADCState adcState = 0;  //static creates this variable only the frist time the function is called and presists throughout the rest of the program
 	
-	if(!(ADCSRA & _BV(ADEN)))   //This line is check that the ADC is not turned on or running by looking at bit 7 of the ADCSRA register to 1.Running means that the ADC is not in the middle of a ADC read write operation.
+	if(!(ADCSRA & _BV(ADEN)))   //This line is check that the ADC is not turned on or running by looking at bit 7 of the ADCSRA register to 1.Running means that the ADC is in the middle of a ADC read write operation.
 	{
 		// Only process ADC if ADC not running
 /*		int16_t delta = 0;*/
